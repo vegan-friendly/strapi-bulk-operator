@@ -38,6 +38,7 @@ const HomePage = () => {
   const [userPermissions, setUserPermissions] = useState(false);
 
   const PermissionPage = () => {
+    console.log(userPermissions)
     return (
       !userPermissions ? <div>you dont have permission to acces this feature</div> :
         <div className={containerClassName}>
