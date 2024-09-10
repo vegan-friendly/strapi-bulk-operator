@@ -7,6 +7,13 @@ export const getContentTypes = async () => {
   return response.json();
 };
 
+export const getCurrentUser = async () => {
+  const response = await fetch(`${baseUrl}/users/me`, {
+    method: "GET",
+  });
+  return response.json();
+};
+
 export const exportEntries = async (data) => {
   const response = await fetch(`${baseUrl}/bulkoperator/export-entries`, {
     method: "POST",
