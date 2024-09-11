@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
   getContentTypes,
+  getCurrentUser,
   createEntries,
   updateEntries,
   exportEntries,
@@ -199,6 +200,7 @@ const HomePage = () => {
       if (!collections.length) setModal(true);
     });
     getCurrentUser().then((res) => {
+      console.log(res)
       setUserPermissions(res.json().role.name == "Administrator") 
       }, []);
     });
