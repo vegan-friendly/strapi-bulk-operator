@@ -1,14 +1,6 @@
 const baseUrl = window.strapi.backendURL;
-
 export const getContentTypes = async () => {
   const response = await fetch(`${baseUrl}/bulkoperator/content-types`, {
-    method: "GET",
-  });
-  return response.json();
-};
-
-export const getCurrentUser = async () => {
-  const response = await fetch(`${baseUrl}/users/me`, {
     method: "GET",
   });
   return response.json();

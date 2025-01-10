@@ -22,6 +22,7 @@ import Alert from "../../components/Alert";
 import Modal from "../../components/Modal";
 
 const HomePage = () => {
+  const ctx = strapi.requestContext.get();
   const darkMode = document
     .querySelector("style[data-styled='active']")
     .innerHTML.includes("body{background:#181826;}");
@@ -199,10 +200,10 @@ const HomePage = () => {
       });
       if (!collections.length) setModal(true);
     });
-    getCurrentUser().then((res) => {
-      console.log(res)
-      setUserPermissions(res.json().role.name == "Administrator") 
-      }, []);
+
+    if (ctx.state.user.role === "Administrator" && ctx.state.isAuthenticated) {
+      setUserPermissions(true) 
+    }
     });
   return (
     <div>
