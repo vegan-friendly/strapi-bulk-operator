@@ -1,5 +1,4 @@
 const baseUrl = window.strapi.backendURL;
-
 export const getContentTypes = async () => {
   const response = await fetch(`${baseUrl}/bulkoperator/content-types`, {
     method: "GET",

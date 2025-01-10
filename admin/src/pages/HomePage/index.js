@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
   getContentTypes,
+  getCurrentUser,
   createEntries,
   updateEntries,
   exportEntries,
@@ -21,6 +22,7 @@ import Alert from "../../components/Alert";
 import Modal from "../../components/Modal";
 
 const HomePage = () => {
+  const ctx = strapi.requestContext.get();
   const darkMode = document
     .querySelector("style[data-styled='active']")
     .innerHTML.includes("body{background:#181826;}");
@@ -35,6 +37,69 @@ const HomePage = () => {
   const [error, setError] = useState("");
   const [errorLogs, setErrorLogs] = useState([]);
   const [modal, setModal] = useState(false);
+  const [userPermissions, setUserPermissions] = useState(false);
+
+  const PermissionPage = () => {
+    console.log(userPermissions)
+    return (
+      !userPermissions ? <div>you dont have permission to acces this feature</div> :
+        <div className={containerClassName}>
+        <RadioBtn
+          title="Choose an action :"
+          items={[
+            { text: "Export", value: "export" },
+            { text: "Create", value: "create" },
+            { text: "Update", value: "update" },
+          ]}
+          selected={selectedAction}
+          select={setSelectedAction}
+          darkMode={darkMode}
+        />
+        <SelectBtn
+          title="Choose a collection :"
+          items={collectionsList}
+          selected={selectedCollection}
+          select={setSelectedCollection}
+          defaultValue="Select collection"
+          darkMode={darkMode}
+        />
+        <UploadBtn
+          title="Upload Excel file :"
+          action={convertFile}
+          disabled={selectedAction === "export"}
+          darkMode={darkMode}
+        >
+          <ExcelIcon darkMode={darkMode} />
+        </UploadBtn>
+        <Button
+          click={submit}
+          loading={loader}
+          text="Submit"
+          darkMode={darkMode}
+        />
+        {(success || error) && (
+          <Alert>
+            {success && <p className="success">{success}</p>}
+            {error && <p className="error">{error}</p>}
+            {errorLogs.length ? (
+              <a
+                className="logs"
+                onClick={() => jsonToExcel("errors", errorLogs)}
+              >
+                Download errors
+              </a>
+            ) : null}
+          </Alert>
+        )}
+        {modal && (
+          <Modal>
+            <p>You must have one collection type created at least</p>
+          </Modal>
+        )}
+      </div>
+      );
+}
+
 
   const titleClassName = useMemo(() => {
     return `main-title ${darkMode ? "dark-mode" : null}`;
@@ -135,66 +200,16 @@ const HomePage = () => {
       });
       if (!collections.length) setModal(true);
     });
-  }, []);
 
+    if (ctx.state.user.role === "Administrator" && ctx.state.isAuthenticated) {
+      setUserPermissions(true) 
+    }
+    });
   return (
     <div>
       <h1 className={titleClassName}>{pageTitle}</h1>
       <div className={contentClassName}>
-        <div className={containerClassName}>
-          <RadioBtn
-            title="Choose an action :"
-            items={[
-              { text: "Export", value: "export" },
-              { text: "Create", value: "create" },
-              { text: "Update", value: "update" },
-            ]}
-            selected={selectedAction}
-            select={setSelectedAction}
-            darkMode={darkMode}
-          />
-          <SelectBtn
-            title="Choose a collection :"
-            items={collectionsList}
-            selected={selectedCollection}
-            select={setSelectedCollection}
-            defaultValue="Select collection"
-            darkMode={darkMode}
-          />
-          <UploadBtn
-            title="Upload Excel file :"
-            action={convertFile}
-            disabled={selectedAction === "export"}
-            darkMode={darkMode}
-          >
-            <ExcelIcon darkMode={darkMode} />
-          </UploadBtn>
-          <Button
-            click={submit}
-            loading={loader}
-            text="Submit"
-            darkMode={darkMode}
-          />
-          {(success || error) && (
-            <Alert>
-              {success && <p className="success">{success}</p>}
-              {error && <p className="error">{error}</p>}
-              {errorLogs.length ? (
-                <a
-                  className="logs"
-                  onClick={() => jsonToExcel("errors", errorLogs)}
-                >
-                  Download errors
-                </a>
-              ) : null}
-            </Alert>
-          )}
-          {modal && (
-            <Modal>
-              <p>You must have one collection type created at least</p>
-            </Modal>
-          )}
-        </div>
+        <PermissionPage />
       </div>
     </div>
   );
